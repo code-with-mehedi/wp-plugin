@@ -77,7 +77,7 @@ if (!function_exists('ulog_shook_wp_login')):
         $tuser_status = "logged in";
 				//$tuid = get_current_user_id();
 				$tuid = $user->ID;
-				$userr = new WP_User($tuid);
+				$user = new WP_User($tuid);
 				global $wp_roles;
 				$role_name = array();
 				if (!empty($user->roles) && is_array($user->roles)) {
@@ -97,3 +97,31 @@ if (!function_exists('ulog_shook_wp_login')):
 
 endif;
 add_action('wp_login', 'ulog_shook_wp_login',20,2);
+// update status after user logged out
+add_action('wp_logout', 'ulog_shook_wp_logout');
+if (!function_exists('ulog_shook_wp_logout')):
+
+    function ulog_shook_wp_logout() {
+				global $wpdb;
+        $tuser_status = "logged out";
+				//$tuid = get_current_user_id();
+				$tuid = get_current_user_id();
+				$user = new WP_User($tuid);
+				global $wp_roles;
+				$role_name = array();
+				if (!empty($user->roles) && is_array($user->roles)) {
+						foreach ($user->roles as $user_r) {
+								$role_name[] = $wp_roles->role_names[$user_r];
+						}
+						$user_role = implode(', ', $role_name);
+				}
+
+				$turemote_addr = $_SERVER['REMOTE_ADDR'];
+				$tuname=$user->display_name;
+
+
+        ulog_insert_user_to_db($tuname,$tuid,$tuser_status,$user_role,$turemote_addr);
+
+    }
+
+endif;
