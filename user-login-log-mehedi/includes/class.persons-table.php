@@ -16,7 +16,7 @@ class Ulog_Table extends WP_List_Table {
 
 		return [
 			'cb'    => '<input type="checkbox">',
-			'tuid'    => __( 'Id', 'ulogdata' ),
+			'user_id'    => __( 'Id', 'ulogdata' ),
 			'tuuser_name'  => __( 'User Name', 'ulogdata' ),
 			'tuuser_role' =>__('User Role','ulogdata'),
 			'tuuser_ip_address' => __( 'IP address', 'ulogdata' ),
@@ -26,7 +26,7 @@ class Ulog_Table extends WP_List_Table {
 	}
 
 	function column_cb( $item ) {
-		return "<input type='checkbox' value='{$item['tuid']}'/>";
+		return "<input type='checkbox' value='{$item['user_id']}'/>";
 	}
 
 		function column_default( $item, $column_name ) {

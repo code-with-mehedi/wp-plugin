@@ -10,6 +10,7 @@ License: GPLv2 or later
 Text Domain: ulogdata
 Domain Path: /languages/
 */
+
 define( 'MY_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 
 // load text domain
@@ -22,8 +23,6 @@ add_action( "plugins_loaded", "ulogdata_load_textdomain" );
 // Load includes files
 include( MY_PLUGIN_PATH . 'includes/class.persons-table.php');
 include( MY_PLUGIN_PATH . 'includes/ulog-admin-menu-page.php');
-
-
 
 // init datebase files
 function ulog_create_new_db () {
@@ -38,9 +37,7 @@ function ulog_create_new_db () {
     tuuser_status varchar(255) NOT NULL,
     user_id INT NOT NUll,
     PRIMARY KEY  (tuid),
-
     time datetime DEFAULT '0000-00-00 00:00:00' NOT NULL
-
   ) $charset_collate;";
 
   require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
@@ -48,34 +45,51 @@ function ulog_create_new_db () {
 }
 register_activation_hook( __FILE__, 'ulog_create_new_db' );
 
-// check user logged in
+/*
+ * Insert record into wp_user_activity table
+*/
+if (!function_exists('ulog_insert_user_to_db')) {
+    function ulog_insert_user_to_db($tuname,$tuid,$tuser_status,$user_role,$turemote_addr) {
+			global $wpdb;
+			$table_name = $wpdb->prefix . "ulog_history";
+		  $wpdb->insert(
+		  	$table_name,
+		  	array(
+		  		'tuuser_name' => $tuname,
+		  		'tuuser_role' => $user_role,
+		  		'tuuser_ip_address' => $turemote_addr,
+		  		'tuuser_status' => $tuser_status,
+		  		'user_id' => $tuid,
+		  		'time' => current_time( 'mysql' )
+		  	));
+    }
 
-function ulog_insert_user_login_details_to_db(){
-
-if(is_user_logged_in()){
-	$current_user = wp_get_current_user();
-	$tuname=$current_user->user_login;
-	$tuid=$current_user->ID;
-	global $wp_roles;
-	$turoles = $current_user->roles[0];
-
-  //check ip from share internet
-  $turemote_addr = $_SERVER['REMOTE_ADDR'];
-
-	global $wpdb;
-	$table_name = $wpdb->prefix . "ulog_history";
-  $wpdb->insert(
-  	$table_name,
-  	array(
-  		'tuuser_name' => $tuname,
-  		'tuuser_role' => $turoles,
-  		'tuuser_ip_address' => $turemote_addr,
-  		'tuuser_status' => "logged In",
-  		'user_id' => $tuid,
-  		'time' => current_time( 'mysql' )
-  	));
 }
-}
-add_action( 'init', 'ulog_insert_user_login_details_to_db');
 
-// show all resutls
+
+if (!function_exists('ulog_shook_wp_login')):
+
+    function ulog_shook_wp_login($user) {
+
+        $tuser_status = "logged in";
+				$tuid = get_current_user_id();
+				$user = new WP_User($tuid);
+				global $wp_roles;
+				$role_name = array();
+				if (!empty($user->roles) && is_array($user->roles)) {
+						foreach ($user->roles as $user_r) {
+								$role_name[] = $wp_roles->role_names[$user_r];
+						}
+						$user_role = implode(', ', $role_name);
+				}
+
+				$turemote_addr = $_SERVER['REMOTE_ADDR'];
+				$tuname=$user->display_name;
+
+
+        ulog_insert_user_to_db($tuname,$tuid,$tuser_status,$user_role,$turemote_addr);
+
+    }
+
+endif;
+add_action('wp_login', 'ulog_shook_wp_login',20);
