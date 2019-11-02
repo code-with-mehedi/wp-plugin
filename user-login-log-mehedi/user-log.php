@@ -66,14 +66,18 @@ if (!function_exists('ulog_insert_user_to_db')) {
 
 }
 
-
+// add_action('init',function(){
+// 	echo $tuid = get_current_user_id();
+//
+// });
 if (!function_exists('ulog_shook_wp_login')):
 
-    function ulog_shook_wp_login($user) {
-
+    function ulog_shook_wp_login($user_login=null , $user) {
+				global $wpdb;
         $tuser_status = "logged in";
-				$tuid = get_current_user_id();
-				$user = new WP_User($tuid);
+				//$tuid = get_current_user_id();
+				$tuid = $user->ID;
+				$userr = new WP_User($tuid);
 				global $wp_roles;
 				$role_name = array();
 				if (!empty($user->roles) && is_array($user->roles)) {
@@ -92,4 +96,4 @@ if (!function_exists('ulog_shook_wp_login')):
     }
 
 endif;
-add_action('wp_login', 'ulog_shook_wp_login',20);
+add_action('wp_login', 'ulog_shook_wp_login',20,2);
