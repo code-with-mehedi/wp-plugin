@@ -60,7 +60,7 @@ if (!function_exists('ulog_insert_user_to_db')) {
 		  		'tuuser_ip_address' => $turemote_addr,
 		  		'tuuser_status' => $tuser_status,
 		  		'user_id' => $tuid,
-		  		'time' => current_time( 'mysql' )
+		  		'time' => current_time('mysql')
 		  	));
     }
 
