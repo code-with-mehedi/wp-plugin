@@ -1,0 +1,17 @@
+
+  p.stock-progressbar-status {
+    overflow: hidden;
+    width: 300px;
+  }
+  span.total-sold {
+      float: left;
+  }
+  span.instock {
+      float: right;
+  }
+  p.stock.in-stock {
+      display: none;
+  }
+  #wpbs_total_sale{
+    display: none;
+  }
